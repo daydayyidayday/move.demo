@@ -1,0 +1,320 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>hitfly</title>
+</head>
+
+<body>
+<script type="text/javascript">
+	window.onload = function(){Game.exe();};
+	var Game = {
+	//启动程序
+	exe : function(){
+		document.body.style.background='#000';
+		var oDiv = document.createElement('div');
+			oDiv.id= 'GameBox';
+			oDiv.style.cssText='height:500px;width:300px;border:10px solid #fff;margin:50px auto;text-align:center;overflow:hidden;position:relative;';
+		document.body.appendChild(oDiv);
+		this.init();
+		
+		},
+		score : 0,
+		ifEnd : false,
+	//初始化
+	init : function(){	
+		var oDiv=document.getElementById('GameBox');
+			oDiv.innerHTML="";
+			Game.score=0;
+			Game.ifEnd=false;
+		var oH = document.createElement('h2');
+			oH.innerHTML='天天打飞机 V1.0';	
+			oH.style.cssText='color:#fff;font-size:26px;font-weight:nomal;';
+			oDiv.appendChild(oH);
+		for(i=0;i<4;i++){
+			var oP = document.createElement('p');
+				oP.index=i;
+				oP.style.cssText='display:block;line-height:40px;width:150px;height:40px;color:#000;font-size:14px;margin:40px auto;background:#fff;cursor:pointer;';
+			var html = "";
+				
+			oP.onmouseenter=function(){
+				this.style.background='#f60';
+				this.style.color='#fff';
+			}
+			oP.onmouseleave=function(){
+				this.style.background='#fff';
+				this.style.color='#000';
+			}
+			oP.onclick=function(e){
+				e= e||window.event;
+				Game.start(this.index,oDiv,e);
+			}
+			
+			switch(i){
+				case 0:
+					html = '简单难度';
+					break;
+				case 1:
+					html = '中等难度';
+					break;
+				case 2:
+					html = '困难难度';
+					break;
+				case 3:
+					html = '卢本伟';
+					oP.style.background='#ffccff';
+					oP.style.color='#f00';
+					oP.style.fontWeight='bold';
+					oP.onmouseleave=function(){
+						this.style.background='#fcf';
+						this.style.color='#f00';
+					}
+					break;
+			}
+			oP.innerHTML=html;
+			oDiv.appendChild(oP);
+			
+		};
+	},	
+		//游戏开始
+		start : function(index,oGameBox,e){
+			oGameBox.innerHTML='';
+			var os = document.createElement('span');
+				os.innerHTML=this.score;
+			oGameBox.appendChild(os);
+			os.style.cssText="color:#fff;position:absolute;left:20px;top:20px;";
+			this.plane(oGameBox,e,index);
+			this.enemy(oGameBox,os,index);
+			
+		
+	},
+		//关于飞机
+		plane : function(oGameBox,e,index){
+			var x =e.pageX,
+				y =e.pageY;
+			var oPlane = new Image();
+			oPlane.src="image/gong.jpg";
+			oPlane.width=36;
+			oPlane.height=36;
+			oPlane.id='plane';
+			var tY = oGameBox.offsetTop+parseInt(oGameBox.style.borderWidth)+oPlane.height/2,
+				lX = oGameBox.offsetLeft+parseInt(oGameBox.style.borderWidth)+oPlane.width/2;
+			window.onresize=function(){
+				lX = oGameBox.offsetLeft+parseInt(oGameBox.style.borderWidth)+oPlane.width/2;
+			};
+			var top = y-tY;
+			var left = x-lX;
+			oPlane.style.cssText="display:block;position:absolute;top:'+top+'px;left:'+left+'px;";
+			oGameBox.appendChild(oPlane);
+			//console.log(top,left);
+			//设置边界
+			var leftMin= -oPlane.width/2,
+				leftMax= oGameBox.clientWidth-oPlane.width/2,
+				topMin=0,
+				topMax=oGameBox.clientHeight-oPlane.height;
+			document.onmousemove = function(e){
+				if(!Game.ifEnd){
+				e= e||window.event;
+				var top =e.pageY-tY;
+				var left = e.pageX-lX;
+				
+				top = Math.min(top,topMax);
+				top = Math.max(top,topMin);
+				left = Math.min(left,leftMax);
+				left = Math.max(left,leftMin);
+				
+				oPlane.style.left= left +'px';
+				oPlane.style.top= top +'px';
+				//console.log(top,left);	
+				}
+				
+			};
+			this.biu(oPlane,oGameBox,index);
+			
+		},
+		//射出子弹
+		biu : function(oPlane,oGameBox,index){
+			var speed;
+			switch(index){
+				case 0:
+					speed=400;break;
+				case 1:
+					speed=300;break;
+				case 2:
+					speed=200;break;
+				case 3:
+					speed=10;break;
+					
+			}
+			this.biutimer = setInterval(function(){
+				var oBiu= new Image();
+					oBiu.src="image/biu.png";
+					oBiu.width=6;
+					oBiu.height=22;
+					oBiu.className='biu';
+				var top = oPlane.offsetTop - oBiu.height;
+				var left = oPlane.offsetLeft + oPlane.width/2 - oBiu.width/2;
+				oBiu.style.cssText="position:absolute;top:"+top+"px;left:"+left+"px;";
+				oGameBox.appendChild(oBiu);
+				//console.log(oBiu.style.top,oBiu.style.left);
+				//console.log(top,left);
+				//子弹边界
+				oBiu.timer = setInterval(function(){
+					oBiu.style.top=oBiu.offsetTop-10+'px';
+					if(oBiu.offsetTop<-oBiu.height){
+						clearInterval(oBiu.timer);
+						oBiu.parentNode.removeChild(oBiu);
+					}
+				},13);
+			},speed)//子弹速度
+		},
+		//敌军
+		enemy : function(oGameBox,os,index){
+			var ens;
+			var b;
+			switch(index){
+				case 0:
+					ens=2000;b=1;break;
+				case 1:
+					ens=1000;b=2;break;
+				case 2:
+					ens=500;b=3;break;
+				case 3:
+					ens=100;b=5;break;}
+			this.etimer = setInterval(function(){
+				var oEnemy = new Image();
+				oEnemy.src='image/sou.jpg';
+				oEnemy.width=24;
+				oEnemy.height=24;
+				
+				var lMin= 0;
+				var lMax = oGameBox.clientWidth-oEnemy.width;
+				var left =Math.random()*(lMax-lMin)+lMin;
+				oEnemy.style.cssText="position:absolute;top:"+(-oEnemy.height)+"px;left:"+left+"px;";
+				//下降
+				var a = Math.random()*b+1;//下降速度
+				var enemyTimer = setInterval(function(){
+					oEnemy.style.top = oEnemy.offsetTop+a+'px';
+					if(oEnemy.offsetTop>=oGameBox.offsetHeight){
+						clearInterval(enemyTimer);
+						oEnemy.parentNode.removeChild(oEnemy);	
+					}
+				},15)
+				oGameBox.appendChild(oEnemy,os);
+				//console.log(lMin,lMax,left);
+				//子弹碰撞
+				var allBiu = Game.getClass('biu');
+				//console.log(allBiu)
+				oEnemy.pzTimer = setInterval(function(){
+					for(var i=0;i<allBiu.length;i++){
+						if(Game.boom( oEnemy , allBiu[i] )){
+							Game.score ++;
+							os.innerHTML=Game.score;
+							oEnemy.src="image/boom.png";
+							clearInterval(oEnemy.pzTimer);
+							clearInterval(oEnemy.gametimer);
+							allBiu[i].parentNode.removeChild(allBiu[i]);
+							setTimeout(function(){
+								if(oEnemy.parentNode){
+									oEnemy.parentNode.removeChild(oEnemy);
+								}
+							},300)
+							break;
+						}
+					}
+				},100);
+				
+				//战机碰撞
+				var oplane = document.getElementById('plane');
+				oEnemy.gametimer = setInterval(function(){
+					if(Game.ifEnd){
+						clearInterval(oEnemy.gametimer);
+					}
+					if(Game.boom(oEnemy,oplane)){
+						Game.ifEnd = true;
+					    clearInterval(oEnemy.pzTimer);
+						clearInterval(Game.etimer);
+						clearInterval(Game.biutimer);
+						oEnemy.src="image/boom.png";
+						oplane.src="image/like.png";
+					setTimeout(function(){
+						Game.over(oGameBox);
+					},300)
+					   }
+				},50)
+			},ens);//生成速度
+		},
+		
+		over : function(oGameBox){
+			oGameBox.innerHTML="";
+			var oDiv=document.createElement('div');
+				oDiv.style.cssText="display:block;width:200px;height:400px;margin:50px auto;background:#fff;";
+			var oT= document.createElement('h2');
+				oT.style.cssText="padding-top:50px";
+				oT.innerHTML="Game Over";
+			var op1= document.createElement('p');
+				op1.innerHTML='你的分数是'+'<span style="color:#f00;font-weigth:bold;">'+Game.score+'</span>'
+				op1.style.cssText='margin:50px auto;color:#00f;';
+			var restart = document.createElement('div');
+				restart.style.cssText='background:#000;color:#fff;cursor:pointer;width:100px;height:50px;line-height:50px;margin:50px auto';
+				restart.innerHTML='重新开始';
+				restart.onclick=function(){
+					Game.init();
+				},
+					
+				
+	
+			oDiv.appendChild(oT);
+			oDiv.appendChild(op1);
+			oDiv.appendChild(restart);
+			oGameBox.appendChild(oDiv);
+		},
+		//碰撞检测封装
+		boom : function( obj1 , obj2 ){
+			
+			var T1 = obj1.offsetTop;
+			var B1 = T1+obj1.clientHeight;
+			var L1 = obj1.offsetLeft;
+			var R1 = L1+obj1.clientWidth;
+			
+			var T2 = obj2.offsetTop;
+			var B2 = T2+obj2.clientHeight;
+			var L2 = obj2.offsetLeft;
+			var R2 = L2+obj2.clientWidth;
+			
+			if(R2<L1 || L2>R1 || B2<T1 || T2>B1){
+				return false;//没撞上
+			}
+			else{
+				return true;//撞上了
+			}
+			
+		},
+		
+		//getclassName的封装函数
+		getClass : function(cName,parent){
+			parent = parent || document;
+			if(document.getElementsByClassName){
+				return parent.getElementsByClassName(cName);
+			}
+			else
+			{
+				var all=parent.getElementsByTagName('*');
+				var arr=[];
+				for(var i=0;i<all.length;i++){
+					var	arrClass=all.className.split(' ');
+					for(var j=0;j<arrClass.length;j++){
+						if(arrClass[j] == cName){
+							arr.push(all[i]);
+							break;
+						}
+					}
+				}
+				return arr;
+			}
+		},
+};
+		
+	</script>
+</body>
+</html>
