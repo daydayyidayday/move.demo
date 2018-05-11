@@ -1,0 +1,160 @@
+<!doctype>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>moveDemo</title>
+    <style>
+    body{
+        margin: 0;
+        padding: 0;
+    }
+    #divp{
+        position: relative;
+    }
+    #concer{
+        position: relative;
+        line-height: 100px;
+        text-align: center;
+    }
+    #move{
+        background:blueviolet;
+        width: 100px;
+        height: 100px;
+        position: absolute;
+        left: 300px;
+    }
+    #display{
+        background: yellowgreen;
+        width: 100px;
+        height: 100px;
+        position: absolute;
+        left: 400px;
+    }
+    #buffer{
+        background: rgb(24, 184, 149);
+        width: 100px;
+        height: 100px;
+        position: absolute;
+        left: 500px;
+    }
+    #big{
+        background: rgb(184, 54, 184);
+        width: 100px;
+        height: 100px;
+        position: absolute;
+        left: 600px;
+    }
+    #movemove{
+        background: rgb(211, 180, 41);
+        width: 100px;
+        height: 100px;
+        position: absolute;
+        left: 700px;
+    }
+    #canmove{
+        background: rgb(63, 207, 58);
+        width: 100px;
+        height: 100px;
+        position: absolute;
+        left: 800px;
+    }
+    #div1{
+        width: 200px;
+        height: 300px;
+        opacity: 0.4;
+        background: burlywood;
+        position: absolute;
+        left: 20px;
+        clear: both;
+    }
+    #div2{
+        width: 300px;
+        height: 200px;
+        background: greenyellow;
+        position: absolute;
+        top:350px;
+        clear: both;
+    }
+    </style>
+    <script src="move.js"></script>
+    <script>
+    window.onload = function(){
+        var Odiv2 = document.getElementById("div2");
+        var Odiv1 = document.getElementById("div1");
+        var move1 = document.getElementById("move");
+        var display1 = document.getElementById("display");
+        var buffer = document.getElementById("buffer");
+        var big = document.getElementById("big");
+        var move2 = document.getElementById("movemove");
+        var move3 = document.getElementById("canmove");
+
+
+        move1.onmouseover = function(){
+            startMoveLeft(Odiv2,500)
+        };
+        move1.onmouseout = function(){
+            startMoveLeft(Odiv2,0)
+        };//最简单的左右移动
+        display1.onmouseover = function(){
+            startMoveOpacity(Odiv1,100)
+        };
+        display1.onmouseout = function(){
+            startMoveOpacity(Odiv1,40)
+        };//透明度变化
+        buffer.onmouseover = function(){
+            startMoveLeftBuffer(Odiv2,500)
+        };
+        buffer.onmouseout = function(){
+            startMoveLeftBuffer(Odiv2,0)
+        };//缓冲运动
+        big.onmouseover = function(){
+            startMoveAttr(Odiv1,'opacity',100)
+        };
+        big.onmouseout = function(){
+            startMoveAttr(Odiv1,'opacity',40)
+        };//任意值运动
+        move2.onmouseover = function(){
+            startMoveAttr(Odiv1,'width',500,function(){
+                startMoveAttr(Odiv1,'height',500,function(){
+                    startMoveAttr(Odiv1,'opacity',100);
+                });
+             });  
+        };
+        move2.onmouseout = function(){
+            startMoveAttr(Odiv1,'opacity',40,function(){
+                startMoveAttr(Odiv1,'height',300,function(){
+                    startMoveAttr(Odiv1,'width',200);
+                });
+            });
+        };
+        
+        move3.onmouseover = function(){
+            startMove(Odiv2,{width:500,heigth:500,opacity:50},function(){
+                startMove(Odiv2,{left:200,top:200});
+            });
+        };
+        move3.onmouseout = function(){
+            startMove(Odiv2,{left:0,top:350},function(){
+                startMove(Odiv2,{width:300,heigth:200,opacity:100});
+            });
+        };
+
+
+        }
+    </script>
+</head>
+<body>
+    <div id="concer">
+        <div id="move">移入移动</div>
+        <div id="display">移入透明</div>
+        <div id="buffer">缓冲运动</div>
+        <div id="big">变大</div>
+        <div id="movemove">链式运动</div>
+        <div id="canmove">完美运动</div>
+    </div>
+    <div id="divp">
+    <div id="div1"></div>
+    <div id="div2"></div>
+</div>
+</body>
+</html>
